@@ -1,19 +1,39 @@
-import { default as onlyIf } from "./middleware";
-
-const routePrefix = "^/:type(invitado|usuario|admin)";
-const controller = (req, res) => res.send("Permiso concedido.");
+import {
+  seeProfile,
+  updateProfile,
+  usersList,
+  adminPanel
+} from "./controllers";
 
 export default app => {
-  // Aqui aplicamos el middleware que hemos llamado onlyIf a las rutas.
+  // Para ver usuarios
+  const canSeeProfile = (req, res, next) =>
+    req.session.permissions.includes("see_profile")
+      ? next()
+      : res.send('Acceso denegado');
 
-  app.get(`${routePrefix}/perfil`, onlyIf("invitado"), controller);
-  app.get(`${routePrefix}/usuarios`, onlyIf("usuario"), controller);
-  app.get(`${routePrefix}/administracion`, onlyIf("admin"), controller);
+  // Para editar usuarios
+  const canUpdateProfile = (req, res, next) =>
+    req.session.permissions.includes("update_profile")
+      ? next()
+      : res.send('Acceso denegado');
 
-  // Por si las moscas
-  app.get("*", (req, res) =>
-    res.send(
-      "No existe ese tipo de usuario. Prueba con /invitado, /usuario, /admin."
-    )
-  );
+  // Para ver otros perfiles de usuario
+  const canSeeOtherUsersProfiles = (req, res, next) =>
+    req.session.permissions.includes("see_other_users_profile")
+      ? next()
+      : res.send('Acceso denegado');
+
+  // Acceder al panel de adminsitrador
+  const canManage = (req, res, next) =>
+    req.session.permissions.includes("can_manage")
+      ? next()
+      : res.send('Acceso denegado');
+
+  // Las rutas de nuestra aplicación
+  app.get("/perfil", canSeeProfile, seeProfile);
+  app.get("/editar-perfil", canUpdateProfile, updateProfile);
+  app.get("/usuario", canSeeOtherUsersProfiles, usersList);
+  app.get("/admin", canManage, adminPanel);
+  app.get("/comprobacion-multiple", canManage, canSeeProfile, seeProfile);
 };

@@ -4,14 +4,13 @@
   "main": "index.js",
   "repository": "https://github.com/enriquebv/demo-middleware-configurable.git",
   "author": "Enrique <ebvcontacto@gmail.com>",
-  "license": "MIT",
   "scripts": {
     "start": "node -r esm app.js",
-    "dev": "nodemon -r esm app.js"
+    "start:refactorizado": "cross-env REFACTORIZADO=true node -r esm app.js"
   },
   "dependencies": {
+    "cross-env": "^6.0.3",
     "esm": "^3.2.25",
-    "express": "^4.17.1",
-    "nodemon": "^2.0.2"
+    "express": "^4.17.1"
   }
 }
